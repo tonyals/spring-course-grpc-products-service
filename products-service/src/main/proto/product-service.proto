@@ -5,7 +5,7 @@ option java_multiple_files = true;
 
 package br.com.content4devs;
 
-service HelloService {
+service ProductService {
   rpc Create(ProductRequest) returns (ProductResponse);
   rpc FindById(RequestById) returns (ProductResponse);
   rpc Delete(RequestById) returns (ProductResponse);
