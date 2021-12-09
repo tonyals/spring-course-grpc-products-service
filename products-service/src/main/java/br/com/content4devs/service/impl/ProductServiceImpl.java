@@ -38,7 +38,9 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public void delete(Long id) {
-
+        var product = this.productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        this.productRepository.delete(product);
     }
 
     @Override
