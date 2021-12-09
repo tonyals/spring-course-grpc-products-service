@@ -3,9 +3,9 @@ package br.com.content4devs.resources;
 import br.com.content4devs.ProductRequest;
 import br.com.content4devs.ProductResponse;
 import br.com.content4devs.ProductServiceGrpc;
+import br.com.content4devs.RequestById;
 import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.assertj.core.api.Assertions;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @TestPropertySource("classpath:application-test.properties")
@@ -42,7 +45,7 @@ public class ProductResourceIntegrationTest {
 
         ProductResponse productResponse = serviceBlockingStub.create(productRequest);
 
-        Assertions.assertThat(productRequest)
+        assertThat(productRequest)
                 .usingRecursiveComparison()
                 .comparingOnlyFields("name", "price", "quantity_in_stock")
                 .isEqualTo(productResponse);
@@ -57,9 +60,31 @@ public class ProductResourceIntegrationTest {
                 .setQuantityInStock(100)
                 .build();
 
-        Assertions.assertThatExceptionOfType(StatusRuntimeException.class)
+        assertThatExceptionOfType(StatusRuntimeException.class)
                 .isThrownBy(() -> serviceBlockingStub.create(productRequest))
                 .withMessage("ALREADY_EXISTS: Produto Product A já cadastrado no sistema.");
+
+    }
+
+    @Test
+    @DisplayName("when findById method is call with valid id a product is returned")
+    public void findByIdSuccessTest() {
+        RequestById request = RequestById.newBuilder().setId(1L).build();
+
+        ProductResponse productResponse = serviceBlockingStub.findById(request);
+
+        assertThat(productResponse.getId()).isEqualTo(request.getId());
+        assertThat(productResponse.getName()).isEqualTo("Product A");
+    }
+
+    @Test
+    @DisplayName("when findById is call with invalid throw ProductNotFoundException")
+    public void findByIdExceptionTest() {
+        RequestById request = RequestById.newBuilder().setId(100L).build();
+
+        assertThatExceptionOfType(StatusRuntimeException.class)
+                .isThrownBy(() -> serviceBlockingStub.findById(request))
+                .withMessage("NOT_FOUND: Produto com ID 100 não encontrado.");
 
     }
 }

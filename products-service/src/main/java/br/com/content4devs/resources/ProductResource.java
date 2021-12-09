@@ -3,6 +3,7 @@ package br.com.content4devs.resources;
 import br.com.content4devs.ProductRequest;
 import br.com.content4devs.ProductResponse;
 import br.com.content4devs.ProductServiceGrpc;
+import br.com.content4devs.RequestById;
 import br.com.content4devs.dto.ProductInputDTO;
 import br.com.content4devs.dto.ProductOutputDTO;
 import br.com.content4devs.service.IProductService;
@@ -28,6 +29,20 @@ public class ProductResource extends ProductServiceGrpc.ProductServiceImplBase {
 
         ProductOutputDTO outputDTO = this.productService.create(inputDTO);
 
+        ProductResponse response = ProductResponse.newBuilder()
+                .setId(outputDTO.getId())
+                .setName(outputDTO.getName())
+                .setPrice(outputDTO.getPrice())
+                .setQuantityInStock(outputDTO.getQuantityInStock())
+                .build();
+
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void findById(RequestById request, StreamObserver<ProductResponse> responseObserver) {
+        ProductOutputDTO outputDTO = productService.findById(request.getId());
         ProductResponse response = ProductResponse.newBuilder()
                 .setId(outputDTO.getId())
                 .setName(outputDTO.getName())
