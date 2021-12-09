@@ -1,8 +1,10 @@
 package br.com.content4devs.service.impl;
 
+import br.com.content4devs.domain.Product;
 import br.com.content4devs.dto.ProductInputDTO;
 import br.com.content4devs.dto.ProductOutputDTO;
 import br.com.content4devs.exception.ProductAlreadyExistsException;
+import br.com.content4devs.exception.ProductNotFoundException;
 import br.com.content4devs.repository.ProductRepository;
 import br.com.content4devs.service.IProductService;
 import br.com.content4devs.util.ProductConverterUtil;
@@ -29,7 +31,9 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ProductOutputDTO findById(Long id) {
-        return null;
+        var product = this.productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        return ProductConverterUtil.productToProductOutputDto(product);
     }
 
     @Override
