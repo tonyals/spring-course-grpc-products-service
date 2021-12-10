@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -103,5 +104,25 @@ public class ProductServiceImplTest {
 
         assertThatExceptionOfType(ProductNotFoundException.class)
                 .isThrownBy(() -> productService.delete(id));
+    }
+
+    @Test
+    @DisplayName("when findAll product is call a list of product is returned")
+    public void findAllSuccessTest() {
+        List<Product> products = List.of(
+                new Product(1L, "product name", 10.00, 10),
+                new Product(2L, "other product name", 10.00, 100)
+        );
+
+        when(productRepository.findAll()).thenReturn(products);
+
+        List<ProductOutputDTO> outputDTOS = productService.findAll();
+
+        assertThat(outputDTOS)
+                .extracting("id", "name", "price", "quantityInStock")
+                .contains(
+                        tuple(1L, "product name", 10.00, 10),
+                        tuple(2L, "other product name", 10.00, 100)
+                );
     }
 }
