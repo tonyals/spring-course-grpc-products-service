@@ -1,9 +1,6 @@
 package br.com.content4devs.resources;
 
-import br.com.content4devs.ProductRequest;
-import br.com.content4devs.ProductResponse;
-import br.com.content4devs.ProductServiceGrpc;
-import br.com.content4devs.RequestById;
+import br.com.content4devs.*;
 import io.grpc.StatusRuntimeException;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.flywaydb.core.Flyway;
@@ -103,5 +100,22 @@ public class ProductResourceIntegrationTest {
         assertThatExceptionOfType(StatusRuntimeException.class)
                 .isThrownBy(() -> serviceBlockingStub.delete(request))
                 .withMessage("NOT_FOUND: Produto com ID 100 não encontrado.");
+    }
+
+    @Test
+    @DisplayName("when findAll method is call a product list is returned")
+    public void findAllSuccessTest() {
+        EmptyRequest request = EmptyRequest.newBuilder().build();
+
+        ProductResponseList responseList = serviceBlockingStub.findAll(request);
+
+        assertThat(responseList).isInstanceOf(ProductResponseList.class);
+        assertThat(responseList.getProductsCount()).isEqualTo(2);
+        assertThat(responseList.getProductsList())
+                .extracting("id", "name", "price", "quantityInStock")
+                .contains(
+                        tuple(1L, "Product A", 10.99, 10),
+                        tuple(2L, "Product B", 10.99, 10)
+                );
     }
 }
