@@ -15,8 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource("classpath:application-test.properties")
@@ -86,5 +85,23 @@ public class ProductResourceIntegrationTest {
                 .isThrownBy(() -> serviceBlockingStub.findById(request))
                 .withMessage("NOT_FOUND: Produto com ID 100 não encontrado.");
 
+    }
+
+    @Test
+    @DisplayName("when delete is call with id should does not throw")
+    public void deleteSuccessTest() {
+        RequestById request = RequestById.newBuilder().setId(1L).build();
+
+        assertThatNoException().isThrownBy(() -> serviceBlockingStub.delete(request));
+    }
+
+    @Test
+    @DisplayName("when delete is call with invalid id throws ProductNotFoundException")
+    public void deleteExceptionTest() {
+        RequestById request = RequestById.newBuilder().setId(100L).build();
+
+        assertThatExceptionOfType(StatusRuntimeException.class)
+                .isThrownBy(() -> serviceBlockingStub.delete(request))
+                .withMessage("NOT_FOUND: Produto com ID 100 não encontrado.");
     }
 }
